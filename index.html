@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscador de Alquileres</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Buscador de Alquileres</h1>
+    <form id="rentalForm">
+      <div class="form-group">
+        <label for="precio">Precio de renta *</label>
+        <input type="number" id="precio" name="precio" required min="0">
+      </div>
+      <div class="form-group">
+        <label for="direccion">Dirección *</label>
+        <input type="text" id="direccion" name="direccion" required>
+      </div>
+      <div class="form-group">
+        <label>Contacto</label>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <input type="url" id="facebook" name="facebook" placeholder="URL de Facebook">
+          <input type="tel" id="whatsapp" name="whatsapp" placeholder="Número WhatsApp">
+        </div>
+        <small>Puedes agregar uno o ambos contactos</small>
+      </div>
+      <div class="form-group">
+        <label>Agregar campos opcionales:</label>
+        <div id="optionalFieldsSelector" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;"></div>
+        <div id="optionalFieldsContainer"></div>
+      </div>
+      <button type="submit" id="submitBtn">Agregar</button>
+      <button type="button" id="cancelEditBtn" style="display:none;">Cancelar edición</button>
+    </form>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h2>Listado de Alquileres</h2>
+      <a href="map.html" target="_blank" style="font-size:1em;padding:6px 14px;background:#1976d2;color:#fff;border-radius:6px;text-decoration:none;">Ver en mapa</a>
+    </div>
+    <div id="filters" style="margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:end;">
+      <div>
+        <label for="filterText">Buscar</label>
+        <input type="text" id="filterText" placeholder="Buscar en todo..." style="min-width:120px;">
+      </div>
+      <div>
+        <label for="filterPrecioMin">Precio min</label>
+        <input type="number" id="filterPrecioMin" min="0" style="width:80px;">
+      </div>
+      <div>
+        <label for="filterPrecioMax">Precio max</label>
+        <input type="number" id="filterPrecioMax" min="0" style="width:80px;">
+      </div>
+      <div>
+        <label for="filterStatus">Estatus</label>
+        <select id="filterStatus">
+          <option value="">Todos</option>
+          <option value="Nuevo">Nuevo</option>
+          <option value="En seguimiento">En seguimiento</option>
+          <option value="Visita agendada">Visita agendada</option>
+          <option value="Descartado">Descartado</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <input type="checkbox" id="filterVisita">
+        <label for="filterVisita" style="margin-bottom:0;">Solo con visita agendada</label>
+      </div>
+    </div>
+    <ul id="rentalList"></ul>
+  </div>
+  <div style="height: 30cm;"></div>
+  <script src="bloc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa de Alquileres</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; width: 100vw; }
+    .leaflet-popup-content { min-width: 180px; }
+    .modal-bg {
+      display: none; position: fixed; top:0; left:0; width:100vw; height:100vh;
+      background: rgba(0,0,0,0.4); align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal {
+      background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; min-width: 250px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+    .modal-close { float: right; cursor: pointer; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="modal-bg" id="modalBg">
+    <div class="modal" id="modalContent">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <div id="modalDetails"></div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Obtener datos de localStorage
+    let rentals = [];
+    try {
+      rentals = JSON.parse(localStorage.getItem('rentals') || '[]');
+    } catch {}
+    // Filtrar solo los que tienen coordenadas válidas
+    const withCoords = rentals.filter(r => r.coordenadas && /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/.test(r.coordenadas));
+    // Inicializar mapa
+    const map = L.map('map').setView([19.4326, -99.1332], 12); // CDMX por defecto
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    // Modal helpers
+    const modalBg = document.getElementById('modalBg');
+    const modalDetails = document.getElementById('modalDetails');
+    const modalClose = document.getElementById('modalClose');
+    modalClose.onclick = () => modalBg.style.display = 'none';
+    modalBg.onclick = e => { if (e.target === modalBg) modalBg.style.display = 'none'; };
+    // Agregar marcadores
+    withCoords.forEach(rental => {
+      const [lat, lng] = rental.coordenadas.split(',').map(Number);
+      const popupHtml = `<strong>$${rental.precio || ''} - ${rental.direccion || 'Sin dirección'}</strong><br>
+        <button type='button' class='ver-detalles-btn' data-id='${rental.id || ''}'>Ver detalles</button>`;
+      const marker = L.marker([lat, lng]).addTo(map).bindPopup(popupHtml);
+      marker.on('popupopen', function(e) {
+        setTimeout(() => {
+          const btn = document.querySelector('.ver-detalles-btn');
+          if (btn) btn.onclick = () => {
+            let detalles = `<h3>${rental.direccion || rental.titulo || 'Sin título'}</h3>`;
+            detalles += `<p><strong>Precio:</strong> $${rental.precio || ''}</p>`;
+            if (rental.facebook) detalles += `<p><strong>Facebook:</strong> <a href='${rental.facebook}' target='_blank'>${rental.facebook}</a></p>`;
+            if (rental.whatsapp) detalles += `<p><strong>WhatsApp:</strong> <a href='https://wa.me/${rental.whatsapp.replace(/\D/g,'')}' target='_blank'>${rental.whatsapp}</a></p>`;
+            if (rental.notas) detalles += `<p><strong>Notas:</strong> ${rental.notas}</p>`;
+            if (rental.metros) detalles += `<p><strong>Metros:</strong> ${rental.metros}</p>`;
+            if (rental.habitaciones) detalles += `<p><strong>Habitaciones:</strong> ${rental.habitaciones}</p>`;
+            if (rental.visita) detalles += `<p><strong>Visita:</strong> ${rental.visita}</p>`;
+            if (rental.estatus) detalles += `<p><strong>Estatus:</strong> ${rental.estatus}</p>`;
+            modalDetails.innerHTML = detalles;
+            modalBg.style.display = 'flex';
+          };
+        }, 100);
+      });
+    });
+    if (withCoords.length) {
+      const bounds = L.latLngBounds(withCoords.map(r => r.coordenadas.split(',').map(Number)));
+      map.fitBounds(bounds, { padding: [40,40] });
+    }
+  </script>
+</body>
+</html>
