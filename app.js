@@ -15,7 +15,7 @@ function importRentals(evt) {
   const file = evt.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     try {
       const arr = JSON.parse(e.target.result);
       if (Array.isArray(arr)) {
@@ -210,11 +210,19 @@ function renderList(state) {
     const header = document.createElement('div');
     header.className = 'rental-header';
     header.style.cursor = 'pointer';
+    let badgeColor = '#bdbdbd', badgeBg = '#f5f5f5';
+    if (rental.estatus === 'Nuevo') { badgeColor = '#1976d2'; badgeBg = '#e3f0fd'; }
+    else if (rental.estatus === 'En seguimiento') { badgeColor = '#f9a825'; badgeBg = '#fff8e1'; }
+    else if (rental.estatus === 'Visita agendada') { badgeColor = '#388e3c'; badgeBg = '#e8f5e9'; }
+    else if (rental.estatus === 'Descartado') { badgeColor = '#d32f2f'; badgeBg = '#ffebee'; }
+    else if (rental.estatus === 'No disponible') { badgeColor = '#616161'; badgeBg = '#e0e0e0'; }
+    const badgeHtml = rental.estatus ? `<span class="estatus-badge" style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.95em;font-weight:500;color:${badgeColor};background:${badgeBg};margin-left:8px;">${rental.estatus}</span>` : '';
     header.innerHTML = `
-      <span class="rental-title">$${rental.precio}</span>
-      <span class="rental-dir">${rental.direccion}</span>
-      <span class="expand-icon" style="margin-left:auto;font-size:1.1em;user-select:none;">${expanded ? '▼' : '▶'}</span>
-    `;
+  <span class="rental-title">$${rental.precio}</span>
+  <span class="rental-dir">${rental.direccion}</span>
+  ${badgeHtml}
+  <span class="expand-icon" style="margin-left:auto;font-size:1.1em;user-select:none;">${expanded ? '▼' : '▶'}</span>
+`;
     header.onclick = (e) => {
       // No expandir si se hace click en editar/eliminar
       if (e.target.closest('.rental-actions')) return;
@@ -230,10 +238,10 @@ function renderList(state) {
       let selectorHtml = `<div id="${selectorId}" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;"></div>`;
       let containerHtml = `<div id="${containerId}"></div>`;
       // Opciones de estatus
-      const estatusOptions = ['Nuevo','En seguimiento','Visita agendada','Descartado'];
+      const estatusOptions = ['Nuevo', 'En seguimiento', 'Visita agendada', 'Descartado', 'No disponible'];
       let estatusHtml = `<div class="form-group"><label>Estatus:</label><select id="edit-estatus-${idx}">`;
       estatusOptions.forEach(opt => {
-        estatusHtml += `<option value="${opt}"${rental.estatus===opt?' selected':''}>${opt}</option>`;
+        estatusHtml += `<option value="${opt}"${rental.estatus === opt ? ' selected' : ''}>${opt}</option>`;
       });
       estatusHtml += `</select></div>`;
       li.innerHTML = `
@@ -396,6 +404,7 @@ function renderList(state) {
         if (rental.estatus === 'Nuevo') { color = '#1976d2'; bg = '#e3f0fd'; }
         else if (rental.estatus === 'En seguimiento') { color = '#f9a825'; bg = '#fff8e1'; }
         else if (rental.estatus === 'Visita agendada') { color = '#388e3c'; bg = '#e8f5e9'; }
+        else if (rental.estatus === 'No disponible') { color = '#616161'; bg = '#e0e0e0'; }
         else if (rental.estatus === 'Descartado') { color = '#d32f2f'; bg = '#ffebee'; }
         estatusHtml = `<div><span class="estatus-badge" style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.95em;font-weight:500;color:${color};background:${bg};margin-top:2px;">${rental.estatus}</span></div>`;
       }
@@ -449,7 +458,7 @@ function renderList(state) {
   });
 }
 
-rentalForm.addEventListener('submit', function(e) {
+rentalForm.addEventListener('submit', function (e) {
   e.preventDefault();
   const precio = document.getElementById('precio').value.trim();
   const direccion = document.getElementById('direccion').value.trim();
