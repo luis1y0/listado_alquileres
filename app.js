@@ -384,7 +384,7 @@ function renderList(state) {
             const coords = encodeURIComponent(rental[field.key]);
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${coords}`;
             opcionalesGrid.push(`<div><strong>${field.label}:</strong> <a href="${mapsUrl}" target="_blank">Maps</a> <button type="button" class="copy-btn mini" data-copy="${rental[field.key]}" title="Copiar coordenadas"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="12" rx="2" fill="#fff" stroke="#888" stroke-width="1"/><rect x="4" y="6" width="8" height="12" rx="2" fill="#fff" stroke="#888" stroke-width="1"/></svg></button></div>`);
-          } else {
+          } else if (field.key !== 'notas') {
             opcionalesGrid.push(`<div><strong>${field.label}:</strong> ${rental[field.key]}</div>`);
           }
         }
@@ -407,6 +407,19 @@ function renderList(state) {
         ${estatusHtml}
       `;
       li.appendChild(detalles);
+      // Mostrar notas aparte, si existen
+      if (rental.notas) {
+        const notasDiv = document.createElement('div');
+        notasDiv.className = 'rental-notas';
+        notasDiv.style.gridColumn = '1/-1';
+        notasDiv.style.margin = '8px 0 0 0';
+        notasDiv.style.padding = '8px 12px';
+        notasDiv.style.background = '#f8f8f8';
+        notasDiv.style.borderRadius = '6px';
+        notasDiv.style.whiteSpace = 'pre-line';
+        notasDiv.innerHTML = `<strong>Notas:</strong><br>${rental.notas}`;
+        li.appendChild(notasDiv);
+      }
       // Acciones
       const actions = document.createElement('div');
       actions.className = 'rental-actions';
